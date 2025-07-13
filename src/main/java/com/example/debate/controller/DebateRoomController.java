@@ -11,7 +11,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/debate/rooms")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000")
 public class DebateRoomController {
 
     private final DebateRoomService debateRoomService;

@@ -26,4 +26,9 @@ public class DebateRoomController {
     public List<DebateRoom> getAllRooms() {
         return debateRoomService.getAllRooms();
     }
+
+    @GetMapping("/{roomId}")
+    public DebateRoom getRoomById(@PathVariable Long roomId) {
+        return debateRoomService.getRoomById(roomId);
+    }
 }

@@ -23,4 +23,9 @@ public class DebateRoomService {
     public List<DebateRoom> getAllRooms() {
         return debateRoomRepository.findAll();
     }
+
+    public DebateRoom getRoomById(Long id) {
+        return debateRoomRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 토론방이 존재하지 않습니다. ID=" + id));
+    }
 }

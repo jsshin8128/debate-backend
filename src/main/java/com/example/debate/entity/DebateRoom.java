@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -22,5 +24,23 @@ public class DebateRoom {
     private String description;
 
     @Column(updatable = false)
-    private java.time.LocalDateTime createdAt = java.time.LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(nullable = false)
+    private boolean closed = false;
+
+    @Column(nullable = false)
+    private int participantCount = 0;
+
+    public void end() {
+        this.closed = true;
+    }
+
+    public void join() {
+        if (!closed) this.participantCount += 1;
+    }
+
+    public void leave() {
+        if (participantCount > 0) this.participantCount -= 1;
+    }
 }

@@ -31,11 +31,15 @@ public class WebSocketEventListener {
         String destination = sha.getDestination();
         String sessionId = sha.getSessionId();
 
+        System.out.println("[SUBSCRIBE] sessionId=" + sessionId + ", destination=" + destination);
+
         if (destination != null && destination.matches("^/topic/debate/\\d+/participants$")) {
             Long roomId = extractRoomId(destination);
             if (roomId > 0 && sessionId != null) {
                 sessionRoomMap.put(sessionId, roomId);
                 roomParticipantCount.merge(roomId, 1, Integer::sum);
+
+                System.out.println("[JOIN] roomId=" + roomId + " | sessionId=" + sessionId + " | count=" + roomParticipantCount.get(roomId));
                 broadcastCount(roomId);
             }
         }
@@ -46,8 +50,11 @@ public class WebSocketEventListener {
         String sessionId = StompHeaderAccessor.wrap(event.getMessage()).getSessionId();
         Long roomId = sessionRoomMap.remove(sessionId);
 
+        System.out.println("[DISCONNECT] sessionId=" + sessionId + ", left roomId=" + roomId);
+
         if (roomId != null) {
             roomParticipantCount.computeIfPresent(roomId, (k, v) -> Math.max(0, v - 1));
+            System.out.println("[LEAVE] roomId=" + roomId + " | sessionId=" + sessionId + " | count=" + roomParticipantCount.get(roomId));
             broadcastCount(roomId);
         }
     }
@@ -57,12 +64,14 @@ public class WebSocketEventListener {
             String[] parts = destination.split("/");
             return Long.parseLong(parts[3]); // /topic/debate/{roomId}/participants
         } catch (Exception e) {
+            System.err.println("[ERROR] Failed to extract roomId from destination: " + destination);
             return -1L;
         }
     }
 
     private void broadcastCount(Long roomId) {
         int count = roomParticipantCount.getOrDefault(roomId, 0);
+        System.out.println("[BROADCAST] roomId=" + roomId + " | broadcasting count=" + count);
         messagingTemplate.convertAndSend("/topic/debate/" + roomId + "/participants", count);
     }
 }

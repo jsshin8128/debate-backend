@@ -1,8 +1,13 @@
 package com.example.auth.controller;
 
+import com.example.auth.entity.User;
 import com.example.auth.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -12,20 +17,32 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public String signup(
+    public ResponseEntity<String> signup(
             @RequestParam String username,
             @RequestParam String password
     ) {
-        userService.register(username, password);
-        return "✅ 회원가입 성공";
+        try {
+            userService.register(username, password);
+            return ResponseEntity.ok("✅ 회원가입 성공");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @PostMapping("/login")
-    public String login(
+    public ResponseEntity<?> login(
             @RequestParam String username,
             @RequestParam String password
     ) {
-        boolean success = userService.login(username, password);
-        return success ? "✅ 로그인 성공" : "❌ 비밀번호가 틀렸습니다.";
+        User user = userService.login(username, password);
+
+        if (user == null) {
+            return ResponseEntity.status(401).body(Map.of("message", "❌ 비밀번호가 틀렸습니다."));
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "id", user.getId(),
+                "username", user.getUsername()
+        ));
     }
 }

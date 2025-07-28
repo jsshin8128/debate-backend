@@ -27,6 +27,8 @@ public class DebateRoomController {
         );
     }
 
+    
+
     // 전체 토론방 목록 조회
     @GetMapping
     public List<GetDebateRoomResponse> getAllRooms() {
@@ -69,5 +71,11 @@ public class DebateRoomController {
     @PatchMapping("/{roomId}/leave")
     public LeaveDebateRoomResponse leaveRoom(@PathVariable Long roomId) {
         return debateRoomService.leaveRoom(roomId);
+    }
+
+    // 토론방 삭제
+    @DeleteMapping("/{roomId}")
+    public void deleteRoom(@PathVariable Long roomId) {
+        debateRoomService.deleteRoom(roomId);
     }
 }

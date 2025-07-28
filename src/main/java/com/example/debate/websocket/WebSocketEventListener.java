@@ -1,5 +1,6 @@
 package com.example.debate.websocket;
 
+import com.example.debate.service.DebateRoomService;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
@@ -14,15 +15,20 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WebSocketEventListener {
 
     private final SimpMessagingTemplate messagingTemplate;
+    private final DebateRoomService debateRoomService;
 
     // 세션 ID → roomId 매핑
     private final Map<String, Long> sessionRoomMap = new ConcurrentHashMap<>();
+    
+    // 세션 ID → userId 매핑
+    private final Map<String, String> sessionUserMap = new ConcurrentHashMap<>();
 
     // roomId → 참가자 수 매핑
     private final Map<Long, Integer> roomParticipantCount = new ConcurrentHashMap<>();
 
-    public WebSocketEventListener(SimpMessagingTemplate messagingTemplate) {
+    public WebSocketEventListener(SimpMessagingTemplate messagingTemplate, DebateRoomService debateRoomService) {
         this.messagingTemplate = messagingTemplate;
+        this.debateRoomService = debateRoomService;
     }
 
     @EventListener
@@ -47,16 +53,28 @@ public class WebSocketEventListener {
 
     @EventListener
     public void handleDisconnect(SessionDisconnectEvent event) {
-        String sessionId = StompHeaderAccessor.wrap(event.getMessage()).getSessionId();
+        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+        String sessionId = accessor.getSessionId();
         Long roomId = sessionRoomMap.remove(sessionId);
+        String userId = sessionUserMap.remove(sessionId);
 
-        System.out.println("[DISCONNECT] sessionId=" + sessionId + ", left roomId=" + roomId);
+        System.out.println("[DISCONNECT] sessionId=" + sessionId + ", left roomId=" + roomId + ", userId=" + userId);
 
-        if (roomId != null) {
-            roomParticipantCount.computeIfPresent(roomId, (k, v) -> Math.max(0, v - 1));
-            System.out.println("[LEAVE] roomId=" + roomId + " | sessionId=" + sessionId + " | count=" + roomParticipantCount.get(roomId));
-            broadcastCount(roomId);
+        if (roomId != null && userId != null) {
+            // 세션 정리
+            debateRoomService.removeSession(sessionId);
+            
+            // 세션에 저장된 userId로 참여자 제거
+            debateRoomService.removeParticipant(roomId, userId);
+            System.out.println("[LEAVE] roomId=" + roomId + " | sessionId=" + sessionId + " | userId=" + userId);
         }
+    }
+
+    // 세션에 userId 저장 (JOIN 메시지 처리 시 호출)
+    public void storeUserSession(String sessionId, String userId, Long roomId) {
+        sessionUserMap.put(sessionId, userId);
+        sessionRoomMap.put(sessionId, roomId);
+        System.out.println("[STORE_SESSION] sessionId=" + sessionId + " | userId=" + userId + " | roomId=" + roomId);
     }
 
     private Long extractRoomId(String destination) {

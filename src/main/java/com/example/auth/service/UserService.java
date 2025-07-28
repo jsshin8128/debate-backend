@@ -26,9 +26,9 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public boolean login(String username, String rawPassword) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
-        return encoder.matches(rawPassword, user.getPassword());
+    public User login(String username, String rawPassword) {
+        return userRepository.findByUsername(username)
+                .filter(user -> encoder.matches(rawPassword, user.getPassword()))
+                .orElse(null);  // 로그인 실패 시 null 반환
     }
 }

@@ -21,7 +21,7 @@ public class DebateChatResponse {
     @Schema(description = "메시지 발신자 이름")
     private String sender;
     @Schema(description = "메시지 발신자 ID")
-    private String senderId;  // 본인 메시지 판단용
+    private Long senderId;  // 본인 메시지 판단용
     @Schema(description = "메시지 본문")
     private String message;
     @Schema(description = "메시지 전송 시각")

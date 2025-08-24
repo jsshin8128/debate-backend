@@ -1,4 +1,5 @@
 
+
 package com.example.auth.controller;
 
 import com.example.auth.entity.User;
@@ -12,13 +13,15 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.validation.BindingResult;
 import java.util.Map;
-
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 @Validated // 입력값 검증 활성화
+
+@Tag(name = "Auth", description = "인증 관련 API")
 public class AuthController {
     private final UserService userService;
 
@@ -30,6 +33,7 @@ public class AuthController {
     /**
      * 회원가입: DTO 적용, 입력값 검증 및 중복 사용자 처리
      */
+    @Operation(summary = "회원가입", description = "회원가입 요청 처리")
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@RequestBody @Validated SignupRequestDto request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -48,6 +52,7 @@ public class AuthController {
     /**
      * 로그인: DTO 적용, 입력값 검증 및 실패 응답 일관화
      */
+    @Operation(summary = "로그인", description = "로그인 요청 처리")
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody @Validated LoginRequestDto request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {

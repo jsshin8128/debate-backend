@@ -1,3 +1,4 @@
+
 package com.example.debate.controller;
 
 import com.example.debate.dto.*;
@@ -5,20 +6,25 @@ import com.example.debate.entity.DebateRoom;
 import com.example.debate.service.DebateRoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  * 토론방 REST 컨트롤러
  * - 생성, 조회, 입장/퇴장, 종료, 삭제 등 토론방 관리 엔드포인트 제공
  */
+
 @RestController
 @RequestMapping("/debate/rooms")
 @RequiredArgsConstructor
+
+@Tag(name = "Debate Room", description = "토론방 관리 API")
 public class DebateRoomController {
     private final DebateRoomService debateRoomService;
 
     /** 토론방 생성 */
+    @Operation(summary = "토론방 생성", description = "새 토론방을 생성합니다.")
     @PostMapping
     public CreateDebateRoomResponse createRoom(@RequestBody CreateDebateRoomRequest request) {
         DebateRoom room = debateRoomService.createRoom(request.getTitle(), request.getDescription());
@@ -31,6 +37,7 @@ public class DebateRoomController {
     }
 
     /** 전체 토론방 목록 조회 */
+    @Operation(summary = "전체 토론방 목록 조회", description = "모든 토론방을 조회합니다.")
     @GetMapping
     public List<GetDebateRoomResponse> getAllRooms() {
         return debateRoomService.getAllRooms().stream()
@@ -44,6 +51,7 @@ public class DebateRoomController {
     }
 
     /** 단일 토론방 조회 */
+    @Operation(summary = "단일 토론방 조회", description = "roomId로 토론방을 조회합니다.")
     @GetMapping("/{roomId}")
     public GetDebateRoomResponse getRoomById(@PathVariable Long roomId) {
         DebateRoom room = debateRoomService.getRoomById(roomId);
@@ -56,6 +64,7 @@ public class DebateRoomController {
     }
 
     /** 토론방 종료 */
+    @Operation(summary = "토론방 종료", description = "roomId로 토론방을 종료합니다.")
     @PatchMapping("/{roomId}")
     public EndDebateRoomResponse endRoom(@PathVariable Long roomId) {
         DebateRoom room = debateRoomService.endRoom(roomId);

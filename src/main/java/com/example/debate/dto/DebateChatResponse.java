@@ -1,4 +1,7 @@
+
 package com.example.debate.dto;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,9 +16,14 @@ import java.time.LocalDateTime;
  */
 @Getter
 @AllArgsConstructor
+@Schema(description = "채팅 응답 DTO")
 public class DebateChatResponse {
+    @Schema(description = "메시지 발신자 이름")
     private String sender;
+    @Schema(description = "메시지 발신자 ID")
     private String senderId;  // 본인 메시지 판단용
+    @Schema(description = "메시지 본문")
     private String message;
+    @Schema(description = "메시지 전송 시각")
     private LocalDateTime timestamp;
 }

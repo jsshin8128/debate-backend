@@ -35,7 +35,9 @@ public class SecurityConfig {
                     "/debate/**",       // 토론방 REST 경로
                     "/ws/**",           // WebSocket handshake
                     "/topic/**",        // STOMP 구독 경로
-                    "/app/**"           // STOMP 전송 경로
+                    "/app/**",          // STOMP 전송 경로
+                    "/swagger-ui/**",   // Swagger UI
+                    "/v3/api-docs/**"   // OpenAPI docs
                 ).permitAll()
                 .anyRequest().authenticated()
             )
